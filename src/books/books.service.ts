@@ -1,32 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { Book } from './interfaces/books.interfaces'
 import { randomUUID } from 'crypto';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Book, BookDocument } from './schemas/book.schema';
+import { Model, Connection, HydratedDocument, QueryWithHelpers } from 'mongoose';
+import { Book as BookInterface } from "./interfaces/books.interfaces";
 
 @Injectable()
 export class BooksService {
-    private readonly books: Book[] = []
+    constructor(
+        @InjectModel(Book.name) private BookModel: Model<BookDocument>,
+        @InjectConnection() private connection: Connection
+    ) {}
 
-    findAll(): Book[] {
-        return this.books;
+    public create(data: BookInterface): Promise<HydratedDocument<BookDocument>>{
+        const book = new this.BookModel(data);
+
+        return book.save();
     }
 
-    findOne(id: string): Book | undefined {
-        return this.books.find(item => item.id == id);
+    public findOne(id: string): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument>{
+        return this.BookModel.findById(id);
     }
 
-    createBook(
-        title: string, description: string, authors: string, 
-        favorite: string, fileCover: string, fileName: string): Book {
-            const newBook = {
-                id: randomUUID(), 
-                title: title,
-                description: description,
-                authors: authors,
-                favorite: favorite,
-                fileCover: fileCover,
-                fileName: fileName
-            }
-        this.books.push(newBook)
-        return newBook;
+    public getAll(): Promise<BookDocument[]>{
+        return this.BookModel.find().exec();
+    }
+
+    public update(id: string, data: BookInterface): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument>{
+        return this.BookModel.findOneAndUpdate(
+            { _id: id },
+            data,
+            { new: true }, 
+        );
+    }
+
+    public delete(id: string): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument> {
+        return this.BookModel.findOneAndDelete({ _id: id });
     }
 }

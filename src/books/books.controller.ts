@@ -1,19 +1,21 @@
-import { Get, Post, Param, Controller, NotFoundException, Body } from '@nestjs/common';
+import { Get, Post, Put, Delete, Param, Controller, NotFoundException, Body } from '@nestjs/common';
 import { BooksService } from './books.service';
 import type { Book } from './interfaces/books.interfaces';
+import { BookDocument } from './schemas/book.schema';
+import type { HydratedDocument, QueryWithHelpers } from 'mongoose';
 
 @Controller('books')
 export class BooksController {
     constructor(private booksService: BooksService) {}
 
     @Get()
-    findAll(): Book[] {
-        return this.booksService.findAll();
+    public getAll(): Promise<BookDocument[]> {
+        return this.booksService.getAll();
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string): Book {
-        const book = this.booksService.findOne(id);
+    public async findOne(@Param('id') id: string): Promise<HydratedDocument<BookDocument>> {
+        const book = await this.booksService.findOne(id).exec();
         if (!book) {
             throw new NotFoundException('Book is not found');
         }
@@ -21,13 +23,24 @@ export class BooksController {
     }
     
     @Post()
-    create(
-        @Body('title') title: string,
-        @Body('description') description: string,
-        @Body('authors') authors: string,
-        @Body('favorite') favorite: string,
-        @Body('fileCover') fileCover: string,
-        @Body('fileName') fileName: string,): Book {
-            return this.booksService.createBook(title, description, authors, favorite, fileCover, fileName);
+    public create(@Body() body: Book): Promise<BookDocument> {
+            return this.booksService.create(body);
+    }
+
+    @Put(':id')
+    public update(
+        @Param('id') id: string,
+        @Body() body: Book,
+    ): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument>{
+        return this.booksService.update(id, body);
+    }
+
+    @Delete(':id')
+    public async delete(@Param('id') id: string): Promise<HydratedDocument<BookDocument>>{
+        const book = await this.booksService.delete(id).exec();
+        if (!book) {
+            throw new NotFoundException('Book is not found');
         }
+        return book;
+    }
 }
