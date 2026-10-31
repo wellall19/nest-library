@@ -3,7 +3,8 @@ import { randomUUID } from 'crypto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Book, BookDocument } from './schemas/book.schema';
 import { Model, Connection, HydratedDocument, QueryWithHelpers } from 'mongoose';
-import { Book as BookInterface } from "./interfaces/books.interfaces";
+import { CreateBookDto } from './dto/create.book.dto';
+import { UpdateBookDto } from './dto/update.book.dto';
 
 @Injectable()
 export class BooksService {
@@ -12,9 +13,8 @@ export class BooksService {
         @InjectConnection() private connection: Connection
     ) {}
 
-    public create(data: BookInterface): Promise<HydratedDocument<BookDocument>>{
+    public create(data: CreateBookDto): Promise<HydratedDocument<BookDocument>>{
         const book = new this.BookModel(data);
-
         return book.save();
     }
 
@@ -26,7 +26,7 @@ export class BooksService {
         return this.BookModel.find().exec();
     }
 
-    public update(id: string, data: BookInterface): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument>{
+    public update(id: string, data: UpdateBookDto): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument>{
         return this.BookModel.findOneAndUpdate(
             { _id: id },
             data,

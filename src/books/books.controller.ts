@@ -1,9 +1,14 @@
-import { Get, Post, Put, Delete, Param, Controller, NotFoundException, Body } from '@nestjs/common';
+import { Get, Post, Put, Delete, Param, Controller, NotFoundException, Body, UsePipes, UseFilters } from '@nestjs/common';
 import { BooksService } from './books.service';
-import type { Book } from './interfaces/books.interfaces';
 import { BookDocument } from './schemas/book.schema';
 import type { HydratedDocument, QueryWithHelpers } from 'mongoose';
+import { CreateBookDto } from './dto/create.book.dto';
+import { UpdateBookDto } from './dto/update.book.dto';
+import { ValidationPipe } from './book.validaton.pipe';
+import { HttpExceptionFilter } from './http.exaption.filter';
 
+@UseFilters(new HttpExceptionFilter)
+@UsePipes(new ValidationPipe())
 @Controller('books')
 export class BooksController {
     constructor(private booksService: BooksService) {}
@@ -23,14 +28,14 @@ export class BooksController {
     }
     
     @Post()
-    public create(@Body() body: Book): Promise<BookDocument> {
+    public create(@Body() body: CreateBookDto): Promise<BookDocument> {
             return this.booksService.create(body);
     }
 
     @Put(':id')
     public update(
         @Param('id') id: string,
-        @Body() body: Book,
+        @Body() body: UpdateBookDto,
     ): QueryWithHelpers<HydratedDocument<BookDocument, {}, {}> | null, HydratedDocument<BookDocument, {}, {}>, {}, BookDocument>{
         return this.booksService.update(id, body);
     }
