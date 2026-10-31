@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BooksService } from './books/books.service';
-import { BooksController } from './books/books.controller';
 
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService} from '@nestjs/config';
 import { BooksModule } from './books/books.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -29,6 +29,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       serviceId: 'nest',
     }),
     BooksModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
