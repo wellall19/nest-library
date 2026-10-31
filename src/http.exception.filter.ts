@@ -9,12 +9,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
         
         const code = exception.getStatus();
         
-        const res = exception.getResponse();
-        const data = typeof res === 'string' ? res : (res as any).message;
+        const exceptionResponse = exception.getResponse();
+        const data =
+            typeof exceptionResponse === 'string'
+            ? exceptionResponse
+            : (exceptionResponse as any).message;
 
         response.status(code).json({
                 timestamp: new Date().toISOString(),
-                statusCode: 'fail',
+                status: 'fail',
                 data,
                 code, 
             });

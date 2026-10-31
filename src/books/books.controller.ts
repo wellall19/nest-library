@@ -5,7 +5,7 @@ import type { HydratedDocument, QueryWithHelpers } from 'mongoose';
 import { CreateBookDto } from './dto/create.book.dto';
 import { UpdateBookDto } from './dto/update.book.dto';
 import { ValidationPipe } from './book.validaton.pipe';
-import { HttpExceptionFilter } from './http.exaption.filter';
+import { HttpExceptionFilter } from '../http.exception.filter';
 
 @UseFilters(new HttpExceptionFilter)
 @UsePipes(new ValidationPipe())

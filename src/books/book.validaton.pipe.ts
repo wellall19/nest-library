@@ -13,10 +13,9 @@ export class ValidationPipe implements PipeTransform{
         if (errors.length > 0) {
             const messages = errors.flatMap((err) => 
                 err.constraints ? Object.values(err.constraints) : [])
-            throw new BadRequestException({
-                status: 'fail',
-                data: messages,
-            });
+            throw new BadRequestException(
+                messages.join(', ')
+            );
         }
         return object;
     }
