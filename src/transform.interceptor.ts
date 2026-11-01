@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, HttpException, Injectable, NestInterceptor } from "@nestjs/common";
-import { Observable } from "rxjs";
+import { Observable, throwError } from "rxjs";
 import { catchError, map } from 'rxjs/operators';
 
 @Injectable()
@@ -11,7 +11,14 @@ export class TransformInterceptor  implements NestInterceptor {
             map(data => ({
                 status: 'success',
                 data: data,
-            }))
-        )
+            })),
+            catchError((err) => {
+                const status = err instanceof HttpException ? err.getStatus() : 500;
+                return throwError(() => new HttpException(
+                    {status: 'fail', data: err.message},
+                    status,
+                ))
+            })
+        )   
     }
 }
