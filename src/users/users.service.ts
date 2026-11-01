@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectConnection, InjectModel } from "@nestjs/mongoose";
 import { User, UserDocument } from './schemas/user.schema'
 import { Model, Connection, HydratedDocument, QueryWithHelpers } from 'mongoose';
-import { SignUpDto } from "../auth/dto/sugnup.dto";
+import { SignUpDto } from "../auth/dto/signup.dto";
+import { CreateUser } from "./interfaces/create.user.interface";
 
 @Injectable()
 export class UsersService {
@@ -10,7 +11,7 @@ export class UsersService {
         @InjectModel(User.name) private UsersModel: Model<UserDocument>,
     ){}
 
-    public create(data: SignUpDto): Promise<HydratedDocument<UserDocument>>{
+    public create(data: CreateUser): Promise<HydratedDocument<UserDocument>>{
         const user = new this.UsersModel(data);
         return user.save();
     }
